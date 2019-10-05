@@ -9,7 +9,7 @@ use InvalidArgumentException;
  */
 class Expression
 {
-    public const AVAILABLE_CHARACTERS = ['(', ')', '+', ' ', '-', '*', '/', '\\d'];
+    private const AVAILABLE_CHARACTERS = ['\\(', '\\)', '\\+', ' ', '\\-', '\\*', '/', '\\d'];
 
     /**
      * Проверка простого математического выражения
@@ -19,13 +19,14 @@ class Expression
      */
     public static function simpleCheck(string $strExpression): bool
     {
+        $strExpression = preg_replace('/\s+/', '', $strExpression);
+
         if (empty($strExpression)) {
             throw new InvalidArgumentException('В функцию передана пустая строка');
         }
-        if (!preg_match('\'[' . implode('', self::AVAILABLE_CHARACTERS) . ']+\'', $strExpression)) {
+        if (preg_match('\'[^ ' . implode('', self::AVAILABLE_CHARACTERS) . ']+\'', $strExpression, $ma)) {
             throw new InvalidArgumentException('Пример содержит недопустимые символы ' . $strExpression);
         }
-        $strExpression = preg_replace('/\s+/', '', $strExpression);
 
         $countBrackets = 0;
         $arNotNextChar = [];
@@ -54,10 +55,10 @@ class Expression
                     $arNotNextChar = ['+', '-', '*', '/', ')', '0'];
                     break;
                 default:
+                    $arNotNextChar = ['('];
                     if ($arExpression[$key - 1] === '(') {
-                        $arNotNextChar = [')'];
+                        $arNotNextChar[] = [')'];
                     }
-                    $arNotNextChar[] = '(';
             }
         }
         return $countBrackets === 0;
