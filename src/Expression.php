@@ -14,22 +14,25 @@ class Expression
     /**
      * Проверка простого математического выражения
      *
-     * @param string $str
+     * @param string $strExpression
      * @return bool
      */
-    public static function simpleCheck(string $str): bool
+    public static function simpleCheck(string $strExpression): bool
     {
-        if (!preg_match('\'[' . implode('', self::AVAILABLE_CHARACTERS) . ']+\'', $str)) {
-            throw new InvalidArgumentException('Пример содержит недопустимые символы ' . $str);
+        if (empty($strExpression)) {
+            throw new InvalidArgumentException('В функцию передана пустая строка');
         }
-        $str = preg_replace('/\s+/', '', $str);
+        if (!preg_match('\'[' . implode('', self::AVAILABLE_CHARACTERS) . ']+\'', $strExpression)) {
+            throw new InvalidArgumentException('Пример содержит недопустимые символы ' . $strExpression);
+        }
+        $strExpression = preg_replace('/\s+/', '', $strExpression);
 
         $countBrackets = 0;
         $arNotNextChar = [];
-        $arStr = str_split($str);
-        foreach ($arStr as $key => $char) {
+        $arExpression = str_split($strExpression);
+        foreach ($arExpression as $key => $char) {
             if ($key === 0 & in_array($char, ['*', '/', ')'])
-                || ($key === count($arStr) & in_array($char, ['+', '-', '*', '/', '(']))
+                || ($key === count($arExpression) & in_array($char, ['+', '-', '*', '/', '(']))
                 || in_array($char, $arNotNextChar, true)
                 || (isset($arNotNextChar['not_num']) & is_numeric($char))) {
                 return false;
@@ -51,7 +54,7 @@ class Expression
                     $arNotNextChar = ['+', '-', '*', '/', ')', '0'];
                     break;
                 default:
-                    if ($arStr[$key - 1] === '(') {
+                    if ($arExpression[$key - 1] === '(') {
                         $arNotNextChar = [')'];
                     }
                     $arNotNextChar[] = '(';
